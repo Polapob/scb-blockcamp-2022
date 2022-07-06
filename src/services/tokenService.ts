@@ -1,5 +1,5 @@
 import { DAI_CONTRACT_ADDRESS } from "../constants/const";
-import getContract from "./contract";
+import getContract from "../utils/contract";
 import BEC20_ABI from "../constants/bec20Abi.json";
 import { Web3Provider } from "@ethersproject/providers";
 import { BigNumber, ContractInterface } from "ethers";

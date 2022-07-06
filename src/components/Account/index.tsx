@@ -6,7 +6,7 @@ import WithdrawModal from "../Modal/WithdrawModal";
 
 interface IAccountProps {
   name: string;
-  balance: number;
+  balance: string;
 }
 
 const Account = ({ name, balance }: IAccountProps) => {
