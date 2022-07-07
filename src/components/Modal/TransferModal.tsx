@@ -1,23 +1,39 @@
 import { Modal, Text, Input, Button } from "@mantine/core";
+import { ChangeEventHandler, useState } from "react";
+import NumericalInput from "../Input/NumericalInput";
 
 interface ITransferModalProps {
   isModalOpen: boolean;
   handleOnClose: () => void;
-  handleTransferButtonClick: () => void;
+  handleTransferButtonClick: (transferTo: string, tokenAmount: string) => Promise<any>;
   title: string;
 }
 
-const TransferModal = ({
-  isModalOpen,
-  handleOnClose,
-  handleTransferButtonClick,
-  title,
-}: ITransferModalProps) => {
+const TransferModal = ({ isModalOpen, handleOnClose, handleTransferButtonClick, title }: ITransferModalProps) => {
+  const [transferAccount, setTransferAccount] = useState<string>("");
+  const [tokenInput, setTokenInput] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const handleTransferAccountChange: ChangeEventHandler<HTMLInputElement> = (event) => {
+    event.preventDefault();
+    setTransferAccount(event.target.value);
+  };
+
+  const onClick = async () => {
+    setLoading(true);
+    await handleTransferButtonClick(transferAccount, tokenInput);
+    setLoading(false);
+  };
+
   return (
     <Modal
       centered
       opened={isModalOpen}
-      onClose={handleOnClose}
+      onClose={() => {
+        handleOnClose();
+        setTokenInput("");
+        setTransferAccount("");
+      }}
       title={title}
       size={600}
       styles={{
@@ -47,6 +63,7 @@ const TransferModal = ({
         size="md"
         placeholder="Account name"
         sx={{ width: "100%", marginBottom: "1rem" }}
+        onChange={handleTransferAccountChange}
       />
       <Text
         size="lg"
@@ -57,16 +74,14 @@ const TransferModal = ({
       >
         Amount (DAI COIN)
       </Text>
-      <Input
-        size="md"
+      <NumericalInput
+        onValueChange={(value) => {
+          setTokenInput(value);
+        }}
         placeholder="Amount"
-        sx={{ width: "100%", marginBottom: "1rem" }}
+        value={tokenInput}
       />
-      <Button
-        fullWidth
-        sx={{ marginTop: "1rem" }}
-        onClick={handleTransferButtonClick}
-      >
+      <Button fullWidth sx={{ marginTop: "1rem" }} onClick={onClick} loading={loading}>
         Transfer
       </Button>
     </Modal>

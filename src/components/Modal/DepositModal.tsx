@@ -1,23 +1,33 @@
+import { Web3Provider } from "@ethersproject/providers";
 import { Modal, Text, Input, Button } from "@mantine/core";
+import { useWeb3React } from "@web3-react/core";
+import { ChangeEventHandler, MouseEventHandler, useState } from "react";
+import NumericalInput from "../Input/NumericalInput";
 
 interface IDepositModalProps {
   isModalOpen: boolean;
   handleOnClose: () => void;
-  handleDepositButtonClick: () => void;
+  handleDepositButtonClick: (tokenAmount: string) => Promise<void>;
   title: string;
 }
 
-const DepositModal = ({
-  isModalOpen,
-  handleOnClose,
-  handleDepositButtonClick,
-  title,
-}: IDepositModalProps) => {
+const DepositModal = ({ isModalOpen, handleOnClose, handleDepositButtonClick, title }: IDepositModalProps) => {
+  const [tokenInput, setTokenInput] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const onClick = async () => {
+    setLoading(true);
+    await handleDepositButtonClick(tokenInput);
+    setLoading(false);
+  };
+
   return (
     <Modal
       centered
       opened={isModalOpen}
-      onClose={handleOnClose}
+      onClose={() => {
+        handleOnClose();
+        setTokenInput("");
+      }}
       title={title}
       size={600}
       styles={{
@@ -41,32 +51,16 @@ const DepositModal = ({
           width: "100%",
         }}
       >
-        Account Name
-      </Text>
-      <Input
-        size="md"
-        placeholder="Account name"
-        sx={{ width: "100%", marginBottom: "1rem" }}
-      />
-      <Text
-        size="lg"
-        align="left"
-        sx={{
-          width: "100%",
-        }}
-      >
         Amount (DAI COIN)
       </Text>
-      <Input
-        size="md"
+      <NumericalInput
+        onValueChange={(value) => {
+          setTokenInput(value);
+        }}
         placeholder="Amount"
-        sx={{ width: "100%", marginBottom: "1rem" }}
+        value={tokenInput}
       />
-      <Button
-        fullWidth
-        sx={{ marginTop: "1rem" }}
-        onClick={handleDepositButtonClick}
-      >
+      <Button fullWidth sx={{ marginTop: "1rem" }} onClick={onClick} loading={loading}>
         Deposit
       </Button>
     </Modal>

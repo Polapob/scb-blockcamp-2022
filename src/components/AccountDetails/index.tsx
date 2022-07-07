@@ -10,14 +10,17 @@ import { Contract } from "@ethersproject/contracts";
 import { BANK_CONTRACT_ADDRESS, DAI_CONTRACT_ADDRESS } from "../../constants/const";
 import BEC_20_ABI from "../../constants/bec20Abi.json";
 import { bankService } from "../../services/bankService";
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import getContract from "../../utils/contract";
 import BANK_ABI from "../../constants/bankAbi.json";
+import { daiService } from "../../services/tokenService";
 
 type UserAccountTypes = {
   name: string;
   balance: BigNumber;
 };
+
+interface IAccountDetailsProps {}
 
 const AccountDetails = () => {
   const { chainId, account, activate, active, library } = useWeb3React<Web3Provider>();
@@ -25,6 +28,7 @@ const AccountDetails = () => {
   const [accounts, setAccounts] = useState<UserAccountTypes[]>([]);
   const [isChange, setChange] = useState<boolean>(false);
   const [accountName, setAccountName] = useState<string>("");
+  const [isAllowance, setAllowance] = useState<boolean>(false);
 
   const handleOnClick = () => {
     setModalOpen(true);
@@ -32,6 +36,11 @@ const AccountDetails = () => {
   const handleOnClose = () => {
     setModalOpen(false);
   };
+
+  const toggleChange = () => {
+    setChange((prevValue) => !prevValue);
+  };
+
   const handleCreateAccountClick = useCallback(async () => {
     if (!library || !account || !accountName) {
       return;
@@ -54,6 +63,21 @@ const AccountDetails = () => {
   );
 
   useEffect(() => debounceInputChange.cancel(), [debounceInputChange]);
+
+  useEffect(() => {
+    const fetchAllowance = async () => {
+      if (!library || !account) {
+        return;
+      }
+      const daiAllowance: BigNumber = await daiService.getAllowance(library, account, BANK_CONTRACT_ADDRESS);
+      if (daiAllowance.eq(0)) {
+        setAllowance(false);
+      } else {
+        setAllowance(true);
+      }
+    };
+    fetchAllowance();
+  }, [account, library, setAllowance]);
 
   useEffect(() => {
     const fetchAccountData = async () => {
@@ -103,7 +127,15 @@ const AccountDetails = () => {
       </Text>
 
       {accounts.map((accountData, index: number) => {
-        return <Account key={index} balance={accountData.balance.toString()} name={accountData.name} />;
+        return (
+          <Account
+            key={index}
+            balance={ethers.utils.formatEther(accountData.balance)}
+            name={accountData.name}
+            toggleChange={toggleChange}
+            isAllowance={isAllowance}
+          />
+        );
       })}
 
       <CreateAccountButton handleOnClick={handleOnClick} title="Create a bank account" />
