@@ -57,14 +57,14 @@ const Home: NextPage = () => {
     connectWalletOnLoad();
   }, [activate]);
 
-  useEffect(() => {
+  /*useEffect(() => {
     const timer = setInterval(() => {
       addNotification("Transfer Success!", "success", 1);
     }, 10000);
     return () => {
       clearInterval(timer);
     };
-  }, [addNotification]);
+  }, [addNotification]); */
 
   // console.log(notifications);
 
