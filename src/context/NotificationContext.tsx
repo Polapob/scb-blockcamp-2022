@@ -36,11 +36,7 @@ const NotificationProvider = ({ children }: INotificationProviderInterface) => {
         if (isFind) {
           return true;
         }
-        if (
-          eachNotification.title === title &&
-          eachNotification.type === type &&
-          eachNotification.duration === duration
-        ) {
+        if (JSON.stringify(eachNotification) === JSON.stringify({ title, type, duration })) {
           console.log("pass-this!");
           return false;
         }
