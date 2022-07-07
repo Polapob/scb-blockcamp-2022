@@ -31,7 +31,8 @@ class BankService {
   depositMoney = async (library: Web3Provider, account: string, bankAccountName: string, amount: BigNumber) => {
     try {
       const bankContract = getContract(this.contractAddress, this.contractAbi, library, account);
-      const response = await bankContract.deposit(bankAccountName, amount);
+      const bankSigner = bankContract.connect(library.getSigner());
+      const response = await bankSigner.deposit(bankAccountName, amount);
       return response;
     } catch (err) {
       return err;
@@ -41,7 +42,8 @@ class BankService {
   withdrawMoney = async (library: Web3Provider, account: string, bankAccountName: string, amount: BigNumber) => {
     try {
       const bankContract = getContract(this.contractAddress, this.contractAbi, library, account);
-      const response = await bankContract.withdraw(bankAccountName, amount);
+      const bankSigner = bankContract.connect(library.getSigner());
+      const response = await bankSigner.withdraw(bankAccountName, amount);
       return response;
     } catch (err) {
       return err;
@@ -57,7 +59,8 @@ class BankService {
   ) => {
     try {
       const bankContract = getContract(this.contractAddress, this.contractAbi, library, account);
-      const response = await bankContract.transfer(fromBankAccountName, toBankAccountName, amount);
+      const bankSigner = bankContract.connect(library.getSigner());
+      const response = await bankSigner.transfer(fromBankAccountName, toBankAccountName, amount);
       return response;
     } catch (err) {
       return err;

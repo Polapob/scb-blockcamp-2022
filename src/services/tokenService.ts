@@ -28,7 +28,8 @@ class TokenService {
   approve = async (library: Web3Provider, account: string, spender: string, amount: BigNumber) => {
     try {
       const tokenContract = getContract(this.tokenAddress, this.tokenAbi, library, account);
-      const response = await tokenContract.approve(spender, amount);
+      const tokenSigner = tokenContract.connect(library.getSigner());
+      const response = await tokenSigner.approve(spender, amount);
       return response;
     } catch (err) {
       console.log(err);
