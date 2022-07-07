@@ -3,13 +3,12 @@ import { Container, Text, Button } from "@mantine/core";
 import { useWeb3React } from "@web3-react/core";
 import { injectedConnector } from "../../utils/Provider";
 
-const Navbar = () => {
-  const { chainId, account, activate, active, library } =
-    useWeb3React<Web3Provider>();
-  const handleOnClick = () => {
-    activate(injectedConnector);
-  };
+interface INavbarProps {
+  handleOnClick: () => void;
+}
 
+const Navbar = ({ handleOnClick }: INavbarProps) => {
+  const { account } = useWeb3React<Web3Provider>();
   return (
     <div
       style={{
