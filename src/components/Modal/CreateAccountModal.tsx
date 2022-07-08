@@ -1,24 +1,53 @@
+import { Web3Provider } from "@ethersproject/providers";
 import { Modal, Text, Input, Button } from "@mantine/core";
+import { useWeb3React } from "@web3-react/core";
 import { DebouncedFunc } from "lodash";
+import debounce from "lodash.debounce";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNotification } from "../../context/NotificationContext";
+import useInputDebounce from "../../hooks/useInputDebounce";
+import { bankService } from "../../services/bankService";
+import handleNotificationFromResponse from "../../utils/handleNotificationFromResponse";
 
 interface ICreateAccountModalProps {
   isModalOpen: boolean;
   handleOnClose: () => void;
-  handleCreateAccountClick: () => void;
-  debounceInputChange: DebouncedFunc<(event: any) => void>;
+  toggleChange: () => void;
 }
 
-const CreateAccountModal = ({
-  isModalOpen,
-  handleOnClose,
-  handleCreateAccountClick,
-  debounceInputChange,
-}: ICreateAccountModalProps) => {
+const CreateAccountModal = ({ isModalOpen, handleOnClose, toggleChange }: ICreateAccountModalProps) => {
+  const { library, account } = useWeb3React<Web3Provider>();
+  const { addNotification } = useNotification();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [accountName, setAccountName] = useState<string>("");
+  const debounceInputChange = useInputDebounce<string>(setAccountName);
+
+  const handleCreateAccountClick = useCallback(async () => {
+    if (!library || !account || !accountName) {
+      return;
+    }
+    const response = await bankService.createAccount(library, account, accountName);
+
+    handleNotificationFromResponse(response, addNotification, "Successfully Create new account");
+
+    toggleChange();
+    handleOnClose();
+  }, [accountName, library, account, addNotification, handleOnClose, toggleChange]);
+
+  const onClick = async () => {
+    setLoading(true);
+    await handleCreateAccountClick();
+    setLoading(false);
+  };
+
   return (
     <Modal
       centered
       opened={isModalOpen}
-      onClose={handleOnClose}
+      onClose={() => {
+        handleOnClose();
+        setLoading(false);
+      }}
       title="Add new Account"
       styles={{
         title: {
@@ -43,16 +72,13 @@ const CreateAccountModal = ({
       >
         Account Name
       </Text>
-      <Input
-        size="md"
-        placeholder="Account name"
-        sx={{ width: "100%" }}
-        onChange={debounceInputChange}
-      />
+      <Input size="md" placeholder="Account name" sx={{ width: "100%" }} onChange={debounceInputChange} />
       <Button
+        loading={loading}
+        disabled={accountName === ""}
         fullWidth
         sx={{ marginTop: "2rem", marginBottom: "1rem" }}
-        onClick={handleCreateAccountClick}
+        onClick={onClick}
       >
         Create New Account
       </Button>
