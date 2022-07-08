@@ -1,18 +1,14 @@
-import { Text, Modal, Input, Button } from "@mantine/core";
-import { ChangeEventHandler, useCallback, useState, useMemo, useEffect } from "react";
+import { Text } from "@mantine/core";
+import { useCallback, useState, useMemo, useEffect } from "react";
 import CreateAccountButton from "../CreateAccountButton";
 import debounce from "lodash.debounce";
 import Account from "../Account";
 import CreateAccountModal from "../Modal/CreateAccountModal";
 import { useWeb3React } from "@web3-react/core";
 import { Web3Provider } from "@ethersproject/providers";
-import { Contract } from "@ethersproject/contracts";
-import { BANK_CONTRACT_ADDRESS, DAI_CONTRACT_ADDRESS } from "../../constants/const";
-import BEC_20_ABI from "../../constants/bec20Abi.json";
+import { BANK_CONTRACT_ADDRESS } from "../../constants/const";
 import { bankService } from "../../services/bankService";
 import { BigNumber, ethers } from "ethers";
-import getContract from "../../utils/contract";
-import BANK_ABI from "../../constants/bankAbi.json";
 import { daiService } from "../../services/tokenService";
 
 type UserAccountTypes = {
@@ -20,49 +16,20 @@ type UserAccountTypes = {
   balance: BigNumber;
 };
 
-interface IAccountDetailsProps {}
-
 const AccountDetails = () => {
-  const { chainId, account, activate, active, library } = useWeb3React<Web3Provider>();
+  const { account, library } = useWeb3React<Web3Provider>();
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
   const [accounts, setAccounts] = useState<UserAccountTypes[]>([]);
   const [isChange, setChange] = useState<boolean>(false);
-  const [accountName, setAccountName] = useState<string>("");
   const [isAllowance, setAllowance] = useState<boolean>(false);
 
-  const handleOnClick = () => {
-    setModalOpen(true);
-  };
-  const handleOnClose = () => {
-    setModalOpen(false);
-  };
-
-  const toggleChange = () => {
+  const toggleChange = useCallback(() => {
     setChange((prevValue) => !prevValue);
-  };
+  }, []);
 
-  const handleCreateAccountClick = useCallback(async () => {
-    if (!library || !account || !accountName) {
-      return;
-    }
-    const response = await bankService.createAccount(library, account, accountName);
-    if (response.wait) {
-      await response.wait();
-    }
-    setChange((isChange) => !isChange);
+  const handleOnClose = useCallback(() => {
     setModalOpen(false);
-  }, [accountName, library, account]);
-
-  const debounceInputChange = useMemo(
-    () =>
-      debounce((event) => {
-        event.preventDefault();
-        setAccountName(event.target.value);
-      }, 300),
-    []
-  );
-
-  useEffect(() => debounceInputChange.cancel(), [debounceInputChange]);
+  }, []);
 
   useEffect(() => {
     const fetchAllowance = async () => {
@@ -88,7 +55,6 @@ const AccountDetails = () => {
         library,
         account
       );
-      console.log(userAccountBalances, userAccountNames);
       if (userAccountBalances && userAccountNames) {
         const indexArray = new Array(userAccountBalances.length).fill(0);
         const allAccounts = indexArray.map((_, index) => ({
@@ -101,8 +67,6 @@ const AccountDetails = () => {
 
     fetchAccountData();
   }, [isChange, library, account, setAccounts]);
-
-  console.log(accounts);
 
   return (
     <div
@@ -119,11 +83,10 @@ const AccountDetails = () => {
         sx={{
           margin: "1.5rem",
           width: "75%",
-          fontSize: "1.25rem",
-          border: "2px solid black",
+          fontSize: "1.5rem",
         }}
       >
-        My Accounts:
+        My Accounts
       </Text>
 
       {accounts.map((accountData, index: number) => {
@@ -138,13 +101,13 @@ const AccountDetails = () => {
         );
       })}
 
-      <CreateAccountButton handleOnClick={handleOnClick} title="Create a bank account" />
-      <CreateAccountModal
-        isModalOpen={isModalOpen}
-        handleOnClose={handleOnClose}
-        handleCreateAccountClick={handleCreateAccountClick}
-        debounceInputChange={debounceInputChange}
+      <CreateAccountButton
+        handleOnClick={() => {
+          setModalOpen(true);
+        }}
+        title="Create a bank account"
       />
+      <CreateAccountModal isModalOpen={isModalOpen} handleOnClose={handleOnClose} toggleChange={toggleChange} />
     </div>
   );
 };
