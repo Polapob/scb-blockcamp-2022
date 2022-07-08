@@ -27,6 +27,9 @@ const DepositModal = ({ isModalOpen, handleOnClose, handleDepositButtonClick, ti
       onClose={() => {
         handleOnClose();
         setTokenInput("");
+        if (loading) {
+          setLoading(false);
+        }
       }}
       title={title}
       size={600}
@@ -60,7 +63,7 @@ const DepositModal = ({ isModalOpen, handleOnClose, handleDepositButtonClick, ti
         placeholder="Amount"
         value={tokenInput}
       />
-      <Button fullWidth sx={{ marginTop: "1rem" }} onClick={onClick} loading={loading}>
+      <Button fullWidth disabled={tokenInput === ""} sx={{ marginTop: "1rem" }} onClick={onClick} loading={loading}>
         Deposit
       </Button>
     </Modal>

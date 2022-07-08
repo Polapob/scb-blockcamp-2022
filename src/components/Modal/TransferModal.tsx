@@ -1,5 +1,7 @@
 import { Modal, Text, Input, Button } from "@mantine/core";
 import { ChangeEventHandler, useState } from "react";
+import useInputDebounce from "../../hooks/useInputDebounce";
+import LoadingButton from "../Button/LoadingButton";
 import NumericalInput from "../Input/NumericalInput";
 
 interface ITransferModalProps {
@@ -13,11 +15,7 @@ const TransferModal = ({ isModalOpen, handleOnClose, handleTransferButtonClick, 
   const [transferAccount, setTransferAccount] = useState<string>("");
   const [tokenInput, setTokenInput] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-
-  const handleTransferAccountChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    event.preventDefault();
-    setTransferAccount(event.target.value);
-  };
+  const debounceInputChange = useInputDebounce<string>(setTransferAccount);
 
   const onClick = async () => {
     setLoading(true);
@@ -33,6 +31,9 @@ const TransferModal = ({ isModalOpen, handleOnClose, handleTransferButtonClick, 
         handleOnClose();
         setTokenInput("");
         setTransferAccount("");
+        if (loading) {
+          setLoading(false);
+        }
       }}
       title={title}
       size={600}
@@ -63,7 +64,7 @@ const TransferModal = ({ isModalOpen, handleOnClose, handleTransferButtonClick, 
         size="md"
         placeholder="Account name"
         sx={{ width: "100%", marginBottom: "1rem" }}
-        onChange={handleTransferAccountChange}
+        onChange={debounceInputChange}
       />
       <Text
         size="lg"
@@ -81,7 +82,14 @@ const TransferModal = ({ isModalOpen, handleOnClose, handleTransferButtonClick, 
         placeholder="Amount"
         value={tokenInput}
       />
-      <Button fullWidth sx={{ marginTop: "1rem" }} onClick={onClick} loading={loading}>
+
+      <Button
+        fullWidth
+        disabled={tokenInput === "" || transferAccount === ""}
+        sx={{ marginTop: "1rem" }}
+        onClick={onClick}
+        loading={loading}
+      >
         Transfer
       </Button>
     </Modal>

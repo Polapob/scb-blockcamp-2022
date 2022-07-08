@@ -1,5 +1,6 @@
 import { Modal, Text, Input, Button } from "@mantine/core";
 import { ChangeEventHandler, useState } from "react";
+import NumericalInput from "../Input/NumericalInput";
 
 interface IWithdrawModalProps {
   isModalOpen: boolean;
@@ -11,10 +12,6 @@ interface IWithdrawModalProps {
 const WithdrawModal = ({ isModalOpen, handleOnClose, handleWithdrawButtonClick, title }: IWithdrawModalProps) => {
   const [tokenInput, setTokenInput] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  const handleTokenInputChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    event.preventDefault();
-    setTokenInput(event.target.value);
-  };
   const onClick = async () => {
     setLoading(true);
     await handleWithdrawButtonClick(tokenInput);
@@ -28,6 +25,9 @@ const WithdrawModal = ({ isModalOpen, handleOnClose, handleWithdrawButtonClick, 
       onClose={() => {
         handleOnClose();
         setTokenInput("");
+        if (loading) {
+          setLoading(false);
+        }
       }}
       title={title}
       size={600}
@@ -54,13 +54,14 @@ const WithdrawModal = ({ isModalOpen, handleOnClose, handleWithdrawButtonClick, 
       >
         Amount (DAI COIN)
       </Text>
-      <Input
-        size="md"
-        placeholder="Amount"
-        sx={{ width: "100%", marginBottom: "1rem" }}
-        onChange={handleTokenInputChange}
+      <NumericalInput
+        onValueChange={(value) => {
+          setTokenInput(value);
+        }}
+        placeholder={"Amount"}
+        value={tokenInput}
       />
-      <Button fullWidth sx={{ marginTop: "1rem" }} onClick={onClick} loading={loading}>
+      <Button disabled={tokenInput === ""} fullWidth sx={{ marginTop: "1rem" }} onClick={onClick} loading={loading}>
         Withdraw
       </Button>
     </Modal>
