@@ -1,6 +1,7 @@
 import { createContext, ReactNode, useContext, useState } from "react";
 import { NotificationResultTypes } from "../components/Notification/Notification";
 import Notification from "../components/Notification/Notification";
+import { Transition } from "@mantine/core";
 
 type NotificationTypes = {
   title: string;
@@ -37,7 +38,6 @@ const NotificationProvider = ({ children }: INotificationProviderInterface) => {
           return true;
         }
         if (JSON.stringify(eachNotification) === JSON.stringify({ title, type, duration })) {
-          console.log("pass-this!");
           return false;
         }
         return true;
