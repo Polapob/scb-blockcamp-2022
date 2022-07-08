@@ -19,9 +19,7 @@ const Home: NextPage = () => {
         try {
           activate(injectedConnector);
           localStorage.setItem("isWalletConnected", "true");
-        } catch (err) {
-          console.log(err);
-        }
+        } catch (err) {}
       }
     };
     connectWalletOnLoad();

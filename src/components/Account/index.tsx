@@ -81,7 +81,6 @@ const Account = ({ name, balance, toggleChange, isAllowance }: IAccountProps) =>
     }
 
     const response = await daiService.approve(library, account, BANK_CONTRACT_ADDRESS, MAX_INT);
-    console.log(response);
 
     handleNotificationFromResponse(response, addNotification, "Successfully Allowance DAI Token.");
   };
@@ -92,7 +91,6 @@ const Account = ({ name, balance, toggleChange, isAllowance }: IAccountProps) =>
     }
     const tokenInputBignumber = ethers.utils.parseEther(tokenAmount);
     const response = await bankService.depositMoney(library, account, name, tokenInputBignumber);
-    console.log("response =", response.error.data.mesage);
 
     handleNotificationFromResponse(response, addNotification, `Successfully deposit ${tokenAmount} DAI to ${account}`);
 
@@ -107,8 +105,6 @@ const Account = ({ name, balance, toggleChange, isAllowance }: IAccountProps) =>
     }
     const tokenInputBignumber = ethers.utils.parseEther(tokenAmount);
     const response = await bankService.withdrawMoney(library, account, name, tokenInputBignumber);
-    console.log(response);
-
     handleNotificationFromResponse(
       response,
       addNotification,

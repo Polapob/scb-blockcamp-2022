@@ -31,7 +31,6 @@ const Notification = ({ title, type, duration, children }: INotificationProps) =
     return () => {
       clearTimeout(timer);
       if (debounceFn) {
-        console.log("check3");
         debounceFn.cancel();
       }
     };

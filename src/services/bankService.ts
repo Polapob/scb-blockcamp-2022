@@ -78,15 +78,12 @@ class BankService {
       const bankContract = getContract(this.contractAddress, this.contractAbi, library, account);
       const bankSigner = bankContract.connect(library.getSigner());
       const userAccountNames: string[] = await bankSigner.getSenderAccounts();
-      console.log(userAccountNames);
       const userAccountBalances: BigNumber[] = await bankSigner.getAccountBalances(userAccountNames);
-      console.log(userAccountBalances);
       return {
         userAccountBalances,
         userAccountNames,
       };
     } catch (err) {
-      console.log(err);
       return {} as {
         userAccountBalances: BigNumber[];
         userAccountNames: string[];
