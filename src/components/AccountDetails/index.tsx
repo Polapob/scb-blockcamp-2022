@@ -11,7 +11,7 @@ import { bankService } from "../../services/bankService";
 import { BigNumber, ethers } from "ethers";
 import { daiService } from "../../services/tokenService";
 
-type UserAccountTypes = {
+export type UserAccountTypes = {
   name: string;
   balance: BigNumber;
 };
@@ -44,17 +44,14 @@ const AccountDetails = () => {
       }
     };
     fetchAllowance();
-  }, [account, library, setAllowance]);
+  }, [account, library, setAllowance, isChange]);
 
   useEffect(() => {
     const fetchAccountData = async () => {
       if (!library || !account) {
         return;
       }
-      const { userAccountBalances, userAccountNames } = await bankService.getAllUserAccountInformation(
-        library,
-        account
-      );
+      const { userAccountBalances, userAccountNames } = await bankService.getAllUserAccountInformation(library, account);
       if (userAccountBalances && userAccountNames) {
         const indexArray = new Array(userAccountBalances.length).fill(0);
         const allAccounts = indexArray.map((_, index) => ({
@@ -97,6 +94,7 @@ const AccountDetails = () => {
             name={accountData.name}
             toggleChange={toggleChange}
             isAllowance={isAllowance}
+            accounts={accounts}
           />
         );
       })}

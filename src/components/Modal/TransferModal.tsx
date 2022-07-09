@@ -1,6 +1,7 @@
 import { Modal, Text, Input, Button } from "@mantine/core";
-import { ChangeEventHandler, useState } from "react";
+import { ChangeEventHandler, useMemo, useState } from "react";
 import useInputDebounce from "../../hooks/useInputDebounce";
+import { UserAccountTypes } from "../AccountDetails";
 import LoadingButton from "../Button/LoadingButton";
 import NumericalInput from "../Input/NumericalInput";
 
@@ -9,12 +10,27 @@ interface ITransferModalProps {
   handleOnClose: () => void;
   handleTransferButtonClick: (transferTo: string, tokenAmount: string) => Promise<any>;
   title: string;
+  accounts: UserAccountTypes[];
 }
 
-const TransferModal = ({ isModalOpen, handleOnClose, handleTransferButtonClick, title }: ITransferModalProps) => {
+const findAccountInAccounts = (accounts: UserAccountTypes[], transferAccount: string) => {
+  return accounts.find((eachAccount) => transferAccount === eachAccount.name);
+};
+
+const TransferModal = ({
+  isModalOpen,
+  handleOnClose,
+  handleTransferButtonClick,
+  title,
+  accounts,
+}: ITransferModalProps) => {
   const [transferAccount, setTransferAccount] = useState<string>("");
   const [tokenInput, setTokenInput] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const isOwnAccount = useMemo(() => {
+    return findAccountInAccounts(accounts, transferAccount);
+  }, [accounts, transferAccount]);
+
   const debounceInputChange = useInputDebounce<string>(setTransferAccount);
 
   const onClick = async () => {
@@ -82,6 +98,10 @@ const TransferModal = ({ isModalOpen, handleOnClose, handleTransferButtonClick, 
         placeholder="Amount"
         value={tokenInput}
       />
+
+      {tokenInput && transferAccount && (
+        <Text>{isOwnAccount ? "0% Fee = 0 DAI" : `1% Fee = ${0.01 * parseFloat(tokenInput)} DAI`}</Text>
+      )}
 
       <Button
         fullWidth

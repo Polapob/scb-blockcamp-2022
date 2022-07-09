@@ -27,6 +27,7 @@ const CreateAccountModal = ({ isModalOpen, handleOnClose, toggleChange }: ICreat
       return;
     }
     const response = await bankService.createAccount(library, account, accountName);
+    await response.wait();
 
     handleNotificationFromResponse(response, addNotification, "Successfully Create new account");
 

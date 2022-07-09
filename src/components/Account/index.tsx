@@ -8,6 +8,7 @@ import { useNotification } from "../../context/NotificationContext";
 import { bankService } from "../../services/bankService";
 import { daiService } from "../../services/tokenService";
 import handleNotificationFromResponse from "../../utils/handleNotificationFromResponse";
+import { UserAccountTypes } from "../AccountDetails";
 import LoadingButton from "../Button/LoadingButton";
 import DepositModal from "../Modal/DepositModal";
 import TransferModal from "../Modal/TransferModal";
@@ -18,6 +19,7 @@ interface IAccountProps {
   balance: string;
   toggleChange: () => void;
   isAllowance: boolean;
+  accounts: UserAccountTypes[];
 }
 
 interface IButtonGroupsProps {
@@ -35,9 +37,7 @@ const ButtonGroups = ({ setDepositModalOpen, setWithdrawModalOpen, setTransferMo
           width: "100%",
         }}
       >
-        <Stack
-          sx={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", rowGap: "1rem" }}
-        >
+        <Stack sx={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", rowGap: "1rem" }}>
           <Button
             sx={{ width: "100%" }}
             onClick={() => {
@@ -68,7 +68,7 @@ const ButtonGroups = ({ setDepositModalOpen, setWithdrawModalOpen, setTransferMo
   );
 };
 
-const Account = ({ name, balance, toggleChange, isAllowance }: IAccountProps) => {
+const Account = ({ name, balance, toggleChange, isAllowance, accounts }: IAccountProps) => {
   const { library, account } = useWeb3React<Web3Provider>();
   const { addNotification } = useNotification();
   const [isDepositModalOpen, setDepositModalOpen] = useState<boolean>(false);
@@ -81,6 +81,10 @@ const Account = ({ name, balance, toggleChange, isAllowance }: IAccountProps) =>
     }
 
     const response = await daiService.approve(library, account, BANK_CONTRACT_ADDRESS, MAX_INT);
+    if (response.wait) {
+      await response.wait();
+    }
+    toggleChange();
 
     handleNotificationFromResponse(response, addNotification, "Successfully Allowance DAI Token.");
   };
@@ -92,7 +96,11 @@ const Account = ({ name, balance, toggleChange, isAllowance }: IAccountProps) =>
     const tokenInputBignumber = ethers.utils.parseEther(tokenAmount);
     const response = await bankService.depositMoney(library, account, name, tokenInputBignumber);
 
-    handleNotificationFromResponse(response, addNotification, `Successfully deposit ${tokenAmount} DAI to ${account}`);
+    if (response.wait) {
+      await response.wait();
+    }
+
+    handleNotificationFromResponse(response, addNotification, `Successfully deposit ${tokenAmount} DAI to ${name}`);
 
     toggleChange();
     setDepositModalOpen(false);
@@ -105,11 +113,12 @@ const Account = ({ name, balance, toggleChange, isAllowance }: IAccountProps) =>
     }
     const tokenInputBignumber = ethers.utils.parseEther(tokenAmount);
     const response = await bankService.withdrawMoney(library, account, name, tokenInputBignumber);
-    handleNotificationFromResponse(
-      response,
-      addNotification,
-      `Successfully withdraw ${tokenAmount} DAI from ${account}`
-    );
+
+    if (response.wait) {
+      await response.wait();
+    }
+
+    handleNotificationFromResponse(response, addNotification, `Successfully withdraw ${tokenAmount} DAI from ${name} to ${account}`);
 
     toggleChange();
     setWithdrawModalOpen(false);
@@ -123,11 +132,11 @@ const Account = ({ name, balance, toggleChange, isAllowance }: IAccountProps) =>
     const tokenInputBignumber = ethers.utils.parseEther(tokenAmount);
     const response = await bankService.transferMoney(library, account, name, transferTo, tokenInputBignumber);
 
-    handleNotificationFromResponse(
-      response,
-      addNotification,
-      `Successfully transfer ${tokenAmount} DAI from ${account} to ${transferTo}`
-    );
+    if (response.wait) {
+      await response.wait();
+    }
+
+    handleNotificationFromResponse(response, addNotification, `Successfully transfer ${tokenAmount} DAI from ${name} to ${transferTo}`);
 
     toggleChange();
     setTransferModalOpen(false);
@@ -171,11 +180,7 @@ const Account = ({ name, balance, toggleChange, isAllowance }: IAccountProps) =>
       </Grid.Col>
 
       {isAllowance ? (
-        <ButtonGroups
-          setDepositModalOpen={setDepositModalOpen}
-          setWithdrawModalOpen={setWithdrawModalOpen}
-          setTransferModalOpen={setTransferModalOpen}
-        />
+        <ButtonGroups setDepositModalOpen={setDepositModalOpen} setWithdrawModalOpen={setWithdrawModalOpen} setTransferModalOpen={setTransferModalOpen} />
       ) : (
         <LoadingButton handleOnClick={handleAllowanceClick} text="Allowance Dai Token" />
       )}
@@ -187,6 +192,7 @@ const Account = ({ name, balance, toggleChange, isAllowance }: IAccountProps) =>
         }}
         handleTransferButtonClick={handleTransferButtonClick}
         title="Transfer DAI COIN to another account"
+        accounts={accounts}
       />
       <WithdrawModal
         isModalOpen={isWithdrawModalOpen}
