@@ -3,11 +3,6 @@ import { BigNumber, ContractInterface } from "ethers";
 import { BANK_CONTRACT_ADDRESS } from "../constants/const";
 import BANK_CONTRACT_ABI from "../constants/bankAbi.json";
 import getContract from "../utils/contract";
-import { Multicall, ContractCallResults, ContractCallContext } from "ethereum-multicall";
-import { ethers } from "ethers";
-
-let provider = ethers.getDefaultProvider();
-const multicall = new Multicall({ ethersProvider: provider, tryAggregate: true });
 
 class BankService {
   contractAddress: string;
