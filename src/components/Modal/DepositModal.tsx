@@ -1,7 +1,5 @@
-import { Web3Provider } from "@ethersproject/providers";
-import { Modal, Text, Input, Button } from "@mantine/core";
-import { useWeb3React } from "@web3-react/core";
-import { ChangeEventHandler, MouseEventHandler, useState } from "react";
+import { Modal, Text, Button } from "@mantine/core";
+import { useCallback, useState } from "react";
 import NumericalInput from "../Input/NumericalInput";
 
 interface IDepositModalProps {
@@ -14,11 +12,11 @@ interface IDepositModalProps {
 const DepositModal = ({ isModalOpen, handleOnClose, handleDepositButtonClick, title }: IDepositModalProps) => {
   const [tokenInput, setTokenInput] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  const onClick = async () => {
+  const onClick = useCallback(async () => {
     setLoading(true);
     await handleDepositButtonClick(tokenInput);
     setLoading(false);
-  };
+  }, [handleDepositButtonClick, tokenInput]);
 
   return (
     <Modal

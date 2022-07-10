@@ -1,8 +1,7 @@
-import { Modal, Text, Input, Button } from "@mantine/core";
-import { ChangeEventHandler, useMemo, useState } from "react";
+import { Modal, Text, TextInput, Button } from "@mantine/core";
+import { useCallback, useMemo, useState } from "react";
 import useInputDebounce from "../../hooks/useInputDebounce";
 import { UserAccountTypes } from "../AccountDetails";
-import LoadingButton from "../Button/LoadingButton";
 import NumericalInput from "../Input/NumericalInput";
 
 interface ITransferModalProps {
@@ -17,13 +16,7 @@ const findAccountInAccounts = (accounts: UserAccountTypes[], transferAccount: st
   return accounts.find((eachAccount) => transferAccount === eachAccount.name);
 };
 
-const TransferModal = ({
-  isModalOpen,
-  handleOnClose,
-  handleTransferButtonClick,
-  title,
-  accounts,
-}: ITransferModalProps) => {
+const TransferModal = ({ isModalOpen, handleOnClose, handleTransferButtonClick, title, accounts }: ITransferModalProps) => {
   const [transferAccount, setTransferAccount] = useState<string>("");
   const [tokenInput, setTokenInput] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -33,11 +26,11 @@ const TransferModal = ({
 
   const debounceInputChange = useInputDebounce<string>(setTransferAccount);
 
-  const onClick = async () => {
+  const onClick = useCallback(async () => {
     setLoading(true);
     await handleTransferButtonClick(transferAccount, tokenInput);
     setLoading(false);
-  };
+  }, [handleTransferButtonClick, transferAccount, tokenInput]);
 
   return (
     <Modal
@@ -76,12 +69,7 @@ const TransferModal = ({
       >
         Account Name
       </Text>
-      <Input
-        size="md"
-        placeholder="Account name"
-        sx={{ width: "100%", marginBottom: "1rem" }}
-        onChange={debounceInputChange}
-      />
+      <TextInput size="md" placeholder="Account name" sx={{ width: "100%", marginBottom: "1rem" }} onChange={debounceInputChange} />
       <Text
         size="lg"
         align="left"
@@ -99,17 +87,9 @@ const TransferModal = ({
         value={tokenInput}
       />
 
-      {tokenInput && transferAccount && (
-        <Text>{isOwnAccount ? "0% Fee = 0 DAI" : `1% Fee = ${0.01 * parseFloat(tokenInput)} DAI`}</Text>
-      )}
+      {tokenInput && transferAccount && <Text>{isOwnAccount ? "0% Fee = 0 DAI" : `1% Fee = ${0.01 * parseFloat(tokenInput)} DAI`}</Text>}
 
-      <Button
-        fullWidth
-        disabled={tokenInput === "" || transferAccount === ""}
-        sx={{ marginTop: "1rem" }}
-        onClick={onClick}
-        loading={loading}
-      >
+      <Button fullWidth disabled={tokenInput === "" || transferAccount === ""} sx={{ marginTop: "1rem" }} onClick={onClick} loading={loading}>
         Transfer
       </Button>
     </Modal>

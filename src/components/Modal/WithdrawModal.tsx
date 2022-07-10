@@ -1,5 +1,5 @@
-import { Modal, Text, Input, Button } from "@mantine/core";
-import { ChangeEventHandler, useState } from "react";
+import { Modal, Text, Button } from "@mantine/core";
+import { useCallback, useState } from "react";
 import NumericalInput from "../Input/NumericalInput";
 
 interface IWithdrawModalProps {
@@ -12,11 +12,11 @@ interface IWithdrawModalProps {
 const WithdrawModal = ({ isModalOpen, handleOnClose, handleWithdrawButtonClick, title }: IWithdrawModalProps) => {
   const [tokenInput, setTokenInput] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  const onClick = async () => {
+  const onClick = useCallback(async () => {
     setLoading(true);
     await handleWithdrawButtonClick(tokenInput);
     setLoading(false);
-  };
+  }, [handleWithdrawButtonClick, setLoading, tokenInput]);
 
   return (
     <Modal
