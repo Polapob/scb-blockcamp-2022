@@ -3,7 +3,6 @@ import getContract from "../utils/contract";
 import BEC20_ABI from "../constants/bec20Abi.json";
 import { Web3Provider } from "@ethersproject/providers";
 import { BigNumber, ContractInterface } from "ethers";
-import { isAddress } from "ethers/lib/utils";
 
 class TokenService {
   tokenAddress: string;

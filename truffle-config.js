@@ -50,6 +50,11 @@ module.exports = {
       network_id: "*",
       skipDryRun: true,
     },
+    test: {
+      provider: () => provider,
+      network_id: "*",
+      skipDryRun: true,
+    },
   },
   compilers: {
     solc: {
