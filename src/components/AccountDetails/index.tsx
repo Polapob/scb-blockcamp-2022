@@ -1,6 +1,6 @@
 import { Text } from "@mantine/core";
 import { useCallback, useState, useMemo, useEffect } from "react";
-import CreateAccountButton from "../CreateAccountButton";
+import CreateAccountButton from "../Button/CreateAccountButton";
 import debounce from "lodash.debounce";
 import Account from "../Account";
 import CreateAccountModal from "../Modal/CreateAccountModal";
