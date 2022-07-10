@@ -44,8 +44,6 @@ contract SimpleBank {
     address public contractAddress;
     address public owner;
     DaiCoin private DaiContract;
-    uint256 private MAX_INT =
-        0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
     mapping(address => string[]) private mapAddressToAccounts;
     mapping(string => AccountDetail) private mapAccountToAccountDetail;
     event Deposit(
