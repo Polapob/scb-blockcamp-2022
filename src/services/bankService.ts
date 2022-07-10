@@ -50,17 +50,22 @@ class BankService {
     }
   };
 
-  transferMoney = async (
-    library: Web3Provider,
-    account: string,
-    fromBankAccountName: string,
-    toBankAccountName: string,
-    amount: BigNumber
-  ) => {
+  transferMoney = async (library: Web3Provider, account: string, fromBankAccountName: string, toBankAccountName: string, amount: BigNumber) => {
     try {
       const bankContract = getContract(this.contractAddress, this.contractAbi, library, account);
       const bankSigner = bankContract.connect(library.getSigner());
       const response = await bankSigner.transfer(fromBankAccountName, toBankAccountName, amount);
+      return response;
+    } catch (err) {
+      return err;
+    }
+  };
+
+  transferToMany = async (library: Web3Provider, account: string, fromBankAccountName: string, toBankAccountNames: string[], eachAmounts: BigNumber[]) => {
+    try {
+      const bankContract = getContract(this.contractAddress, this.contractAbi, library, account);
+      const bankSigner = bankContract.connect(library.getSigner());
+      const response = await bankSigner.transferToMany(fromBankAccountName, toBankAccountNames, eachAmounts);
       return response;
     } catch (err) {
       return err;
