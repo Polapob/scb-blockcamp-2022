@@ -1,9 +1,7 @@
 import { Web3Provider } from "@ethersproject/providers";
-import { Modal, Text, Input, Button } from "@mantine/core";
+import { Modal, Text, Input, Button, TextInput } from "@mantine/core";
 import { useWeb3React } from "@web3-react/core";
-import { DebouncedFunc } from "lodash";
-import debounce from "lodash.debounce";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { useNotification } from "../../context/NotificationContext";
 import useInputDebounce from "../../hooks/useInputDebounce";
 import { bankService } from "../../services/bankService";
@@ -35,11 +33,11 @@ const CreateAccountModal = ({ isModalOpen, handleOnClose, toggleChange }: ICreat
     handleOnClose();
   }, [accountName, library, account, addNotification, handleOnClose, toggleChange]);
 
-  const onClick = async () => {
+  const onClick = useCallback(async () => {
     setLoading(true);
     await handleCreateAccountClick();
     setLoading(false);
-  };
+  }, [handleCreateAccountClick]);
 
   return (
     <Modal
@@ -73,14 +71,8 @@ const CreateAccountModal = ({ isModalOpen, handleOnClose, toggleChange }: ICreat
       >
         Account Name
       </Text>
-      <Input size="md" placeholder="Account name" sx={{ width: "100%" }} onChange={debounceInputChange} />
-      <Button
-        loading={loading}
-        disabled={accountName === ""}
-        fullWidth
-        sx={{ marginTop: "2rem", marginBottom: "1rem" }}
-        onClick={onClick}
-      >
+      <TextInput size="md" placeholder="Account name" sx={{ width: "100%" }} onChange={debounceInputChange} />
+      <Button loading={loading} disabled={accountName === ""} fullWidth sx={{ marginTop: "2rem", marginBottom: "1rem" }} onClick={onClick}>
         Create New Account
       </Button>
     </Modal>

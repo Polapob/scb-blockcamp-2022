@@ -2,7 +2,7 @@ import { Web3Provider } from "@ethersproject/providers";
 import { Grid, Button, Stack } from "@mantine/core";
 import { useWeb3React } from "@web3-react/core";
 import { ethers } from "ethers";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useState } from "react";
 import { BANK_CONTRACT_ADDRESS, MAX_INT } from "../../constants/const";
 import { useNotification } from "../../context/NotificationContext";
 import { bankService } from "../../services/bankService";
@@ -11,6 +11,7 @@ import handleNotificationFromResponse from "../../utils/handleNotificationFromRe
 import { UserAccountTypes } from "../AccountDetails";
 import LoadingButton from "../Button/LoadingButton";
 import DepositModal from "../Modal/DepositModal";
+import TransferManyModal from "../Modal/TransferManyModal";
 import TransferModal from "../Modal/TransferModal";
 import WithdrawModal from "../Modal/WithdrawModal";
 
@@ -26,9 +27,10 @@ interface IButtonGroupsProps {
   setDepositModalOpen: Dispatch<SetStateAction<boolean>>;
   setWithdrawModalOpen: Dispatch<SetStateAction<boolean>>;
   setTransferModalOpen: Dispatch<SetStateAction<boolean>>;
+  setTransferManyModalOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-const ButtonGroups = ({ setDepositModalOpen, setWithdrawModalOpen, setTransferModalOpen }: IButtonGroupsProps) => {
+const ButtonGroups = ({ setDepositModalOpen, setWithdrawModalOpen, setTransferModalOpen, setTransferManyModalOpen }: IButtonGroupsProps) => {
   return (
     <>
       <Grid.Col
@@ -37,7 +39,7 @@ const ButtonGroups = ({ setDepositModalOpen, setWithdrawModalOpen, setTransferMo
           width: "100%",
         }}
       >
-        <Stack sx={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", rowGap: "1rem" }}>
+        <Stack sx={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", rowGap: "1rem", marginBottom: "1rem" }}>
           <Button
             sx={{ width: "100%" }}
             onClick={() => {
@@ -63,6 +65,14 @@ const ButtonGroups = ({ setDepositModalOpen, setWithdrawModalOpen, setTransferMo
             Transfer
           </Button>
         </Stack>
+        <Button
+          fullWidth
+          onClick={() => {
+            setTransferManyModalOpen(true);
+          }}
+        >
+          Transfer To Many Accounts
+        </Button>
       </Grid.Col>
     </>
   );
@@ -74,8 +84,9 @@ const Account = ({ name, balance, toggleChange, isAllowance, accounts }: IAccoun
   const [isDepositModalOpen, setDepositModalOpen] = useState<boolean>(false);
   const [isTransferModalOpen, setTransferModalOpen] = useState<boolean>(false);
   const [isWithdrawModalOpen, setWithdrawModalOpen] = useState<boolean>(false);
+  const [isTransferManyModalOpen, setTransferManyModalOpen] = useState<boolean>(false);
 
-  const handleAllowanceClick = async () => {
+  const handleAllowanceClick = useCallback(async () => {
     if (!library || !account) {
       return;
     }
@@ -87,61 +98,90 @@ const Account = ({ name, balance, toggleChange, isAllowance, accounts }: IAccoun
     toggleChange();
 
     handleNotificationFromResponse(response, addNotification, "Successfully Allowance DAI Token.");
-  };
+  }, [account, addNotification, library, toggleChange]);
 
-  const handleDepositButtonClick = async (tokenAmount: string) => {
-    if (!library || isNaN(parseFloat(tokenAmount)) || !account) {
-      return;
-    }
-    const tokenInputBignumber = ethers.utils.parseEther(tokenAmount);
-    const response = await bankService.depositMoney(library, account, name, tokenInputBignumber);
+  const handleDepositButtonClick = useCallback(
+    async (tokenAmount: string) => {
+      if (!library || isNaN(parseFloat(tokenAmount)) || !account) {
+        return;
+      }
+      const tokenInputBignumber = ethers.utils.parseEther(tokenAmount);
+      const response = await bankService.depositMoney(library, account, name, tokenInputBignumber);
 
-    if (response.wait) {
-      await response.wait();
-    }
+      if (response.wait) {
+        await response.wait();
+      }
 
-    handleNotificationFromResponse(response, addNotification, `Successfully deposit ${tokenAmount} DAI to ${name}`);
+      handleNotificationFromResponse(response, addNotification, `Successfully deposit ${tokenAmount} DAI to ${name}`);
 
-    toggleChange();
-    setDepositModalOpen(false);
-    return response;
-  };
+      toggleChange();
+      setDepositModalOpen(false);
+      return response;
+    },
+    [account, addNotification, library, name, toggleChange]
+  );
 
-  const handleWithdrawButtonClick = async (tokenAmount: string) => {
-    if (!library || isNaN(parseFloat(tokenAmount)) || !account) {
-      return;
-    }
-    const tokenInputBignumber = ethers.utils.parseEther(tokenAmount);
-    const response = await bankService.withdrawMoney(library, account, name, tokenInputBignumber);
+  const handleWithdrawButtonClick = useCallback(
+    async (tokenAmount: string) => {
+      if (!library || isNaN(parseFloat(tokenAmount)) || !account) {
+        return;
+      }
+      const tokenInputBignumber = ethers.utils.parseEther(tokenAmount);
+      const response = await bankService.withdrawMoney(library, account, name, tokenInputBignumber);
 
-    if (response.wait) {
-      await response.wait();
-    }
+      if (response.wait) {
+        await response.wait();
+      }
 
-    handleNotificationFromResponse(response, addNotification, `Successfully withdraw ${tokenAmount} DAI from ${name} to ${account}`);
+      handleNotificationFromResponse(response, addNotification, `Successfully withdraw ${tokenAmount} DAI from ${name} to ${account}`);
 
-    toggleChange();
-    setWithdrawModalOpen(false);
-    return response;
-  };
+      toggleChange();
+      setWithdrawModalOpen(false);
+      return response;
+    },
+    [account, addNotification, library, name, toggleChange]
+  );
 
-  const handleTransferButtonClick = async (transferTo: string, tokenAmount: string) => {
-    if (!library || isNaN(parseFloat(tokenAmount)) || !account) {
-      return;
-    }
-    const tokenInputBignumber = ethers.utils.parseEther(tokenAmount);
-    const response = await bankService.transferMoney(library, account, name, transferTo, tokenInputBignumber);
+  const handleTransferButtonClick = useCallback(
+    async (transferTo: string, tokenAmount: string) => {
+      if (!library || isNaN(parseFloat(tokenAmount)) || !account) {
+        return;
+      }
+      const tokenInputBignumber = ethers.utils.parseEther(tokenAmount);
+      const response = await bankService.transferMoney(library, account, name, transferTo, tokenInputBignumber);
 
-    if (response.wait) {
-      await response.wait();
-    }
+      if (response.wait) {
+        await response.wait();
+      }
 
-    handleNotificationFromResponse(response, addNotification, `Successfully transfer ${tokenAmount} DAI from ${name} to ${transferTo}`);
+      handleNotificationFromResponse(response, addNotification, `Successfully transfer ${tokenAmount} DAI from ${name} to ${transferTo}`);
 
-    toggleChange();
-    setTransferModalOpen(false);
-    return response;
-  };
+      toggleChange();
+      setTransferModalOpen(false);
+      return response;
+    },
+    [account, addNotification, library, name, toggleChange]
+  );
+
+  const handleTransferManyClick = useCallback(
+    async (transferTo: string[], eachTransferAmount: string[]) => {
+      if (!library || !account) {
+        return;
+      }
+      const eachAmounts = eachTransferAmount.map((amount) => ethers.utils.parseEther(amount));
+      const response = await bankService.transferToMany(library, account, name, transferTo, eachAmounts);
+
+      if (response.wait) {
+        await response.wait();
+      }
+
+      handleNotificationFromResponse(response, addNotification, `Successfully transfer DAI from ${name} to many accounts.`);
+
+      toggleChange();
+      setTransferManyModalOpen(false);
+    },
+    [account, addNotification, library, name, toggleChange]
+  );
 
   return (
     <Grid
@@ -180,11 +220,15 @@ const Account = ({ name, balance, toggleChange, isAllowance, accounts }: IAccoun
       </Grid.Col>
 
       {isAllowance ? (
-        <ButtonGroups setDepositModalOpen={setDepositModalOpen} setWithdrawModalOpen={setWithdrawModalOpen} setTransferModalOpen={setTransferModalOpen} />
+        <ButtonGroups
+          setTransferManyModalOpen={setTransferManyModalOpen}
+          setDepositModalOpen={setDepositModalOpen}
+          setWithdrawModalOpen={setWithdrawModalOpen}
+          setTransferModalOpen={setTransferModalOpen}
+        />
       ) : (
         <LoadingButton handleOnClick={handleAllowanceClick} text="Allowance Dai Token" />
       )}
-
       <TransferModal
         isModalOpen={isTransferModalOpen}
         handleOnClose={() => {
@@ -209,6 +253,15 @@ const Account = ({ name, balance, toggleChange, isAllowance, accounts }: IAccoun
         }}
         handleDepositButtonClick={handleDepositButtonClick}
         title="Deposit DAI COIN to your account"
+      />
+      <TransferManyModal
+        isModalOpen={isTransferManyModalOpen}
+        handleOnClose={() => {
+          setTransferManyModalOpen(false);
+        }}
+        handleTransferManyClick={handleTransferManyClick}
+        title="Transfer DAI COIN to many accounts"
+        accounts={accounts}
       />
     </Grid>
   );
