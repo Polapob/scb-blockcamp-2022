@@ -304,11 +304,30 @@ contract SimpleBank {
         );
 
         for (uint256 _index = 0; _index < toAccountNames.length; _index++) {
-            transfer(
-                fromAccountName,
-                toAccountNames[_index],
-                amountForEachAccount[_index]
-            );
+            string memory toAccountName = toAccountNames[_index];
+            uint256 amount = amountForEachAccount[_index];
+            bool isTransferToYourAccount = verifyAccount(toAccountName);
+            if (isTransferToYourAccount) {
+                mapAccountToAccountDetail[fromAccountName].balance -= amount;
+                mapAccountToAccountDetail[toAccountName].balance += amount;
+                emit Transfer(
+                    msg.sender,
+                    fromAccountName,
+                    toAccountName,
+                    amount
+                );
+            } else {
+                mapAccountToAccountDetail[fromAccountName].balance -= amount;
+                mapAccountToAccountDetail[toAccountName].balance +=
+                    (amount * 99) /
+                    100;
+                emit Transfer(
+                    msg.sender,
+                    fromAccountName,
+                    toAccountName,
+                    (amount * 99) / 100
+                );
+            }
         }
     }
 }
