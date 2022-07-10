@@ -1,5 +1,5 @@
 import { Web3Provider } from "@ethersproject/providers";
-import { Modal, Text, Input, Button, TextInput } from "@mantine/core";
+import { Modal, Text, Button, TextInput } from "@mantine/core";
 import { useWeb3React } from "@web3-react/core";
 import { useCallback, useState } from "react";
 import { useNotification } from "../../context/NotificationContext";

@@ -1,7 +1,6 @@
 import { Grid, TextInput, Button } from "@mantine/core";
 import debounce from "lodash.debounce";
 import { memo, useEffect, useMemo, useState } from "react";
-import useDebounceInput from "../../hooks/useInputDebounce";
 import NumericalInput from "./NumericalInput";
 
 export interface IEachTransferFieldProps {

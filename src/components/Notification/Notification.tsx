@@ -2,7 +2,6 @@ import { Notification as MantineNotification } from "@mantine/core";
 import { ReactNode, useEffect, useRef } from "react";
 import { Check, X } from "tabler-icons-react";
 import { useNotification } from "../../context/NotificationContext";
-import { Transition } from "@mantine/core";
 import debounce from "lodash.debounce";
 import { DebouncedFunc } from "lodash";
 export type NotificationResultTypes = "success" | "failure";

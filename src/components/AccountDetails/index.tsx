@@ -1,7 +1,6 @@
 import { Text } from "@mantine/core";
-import { useCallback, useState, useMemo, useEffect } from "react";
+import { useCallback, useState, useEffect } from "react";
 import CreateAccountButton from "../Button/CreateAccountButton";
-import debounce from "lodash.debounce";
 import Account from "../Account";
 import CreateAccountModal from "../Modal/CreateAccountModal";
 import { useWeb3React } from "@web3-react/core";

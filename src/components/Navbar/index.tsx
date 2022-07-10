@@ -1,7 +1,6 @@
 import { Web3Provider } from "@ethersproject/providers";
-import { Container, Text, Button } from "@mantine/core";
+import { Text, Button } from "@mantine/core";
 import { useWeb3React } from "@web3-react/core";
-import { injectedConnector } from "../../utils/Provider";
 
 interface INavbarProps {
   handleOnClick: () => void;
