@@ -1,6 +1,6 @@
 import { DAI_CONTRACT_ADDRESS } from "../constants/const";
 import getContract from "../utils/contract";
-import BEC20_ABI from "../constants/bec20Abi.json";
+import BEP20_ABI from "../constants/bep20Abi.json";
 import { Web3Provider } from "@ethersproject/providers";
 import { BigNumber, ContractInterface } from "ethers";
 
@@ -36,4 +36,4 @@ class TokenService {
   };
 }
 
-export const daiService = new TokenService(DAI_CONTRACT_ADDRESS, BEC20_ABI);
+export const daiService = new TokenService(DAI_CONTRACT_ADDRESS, BEP20_ABI);
